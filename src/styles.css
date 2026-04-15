@@ -1,3 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
-
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
+@import 'tailwindcss';
+@import 'tailwind-animations';
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-elegant-bg: #0a0a0c;
+  --color-elegant-sidebar: #111114;
+  --color-elegant-card: #1c1c21;
+  --color-elegant-border: #2d2d35;
+  --color-elegant-text: #f0f0f2;
+  --color-elegant-text-muted: #9494a3;
+  --color-elegant-accent: #3b82f6;
+  --color-elegant-accent-dim: rgba(59, 130, 246, 0.1);
+  --color-elegant-success: #10b981;
+  --color-elegant-warning: #f59e0b;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
