@@ -29,8 +29,8 @@ import { FormsModule } from '@angular/forms';
     LucideLayout
   ],
   template: `
-    <main class="pt-20 pb-20 md:pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div class="mb-6 flex flex-col sm:flex-row gap-4 items-end justify-end mx-auto">
+    <main class="px-4 sm:px-6 overflow-hidden lg:px-8 max-w-7xl mx-auto">
+      <div class="mb-6 flex flex-row gap-4 items-end justify-end mx-auto">
        <select
           class="p-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg text-white"
           [(ngModel)]="filterStatus"
@@ -224,22 +224,7 @@ import { FormsModule } from '@angular/forms';
       </div>
     </main>
   `,
-  styles: [`
-    /* ... tus estilos de scrollbar existentes ... */
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #d4d4d8;
-      border-radius: 20px;
-    }
-    :host-context(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #2d2d35;
-    }
-  `]
+  styles: []
 })
 export class KanbanComponent {
   roadmap = inject(RoadmapService);

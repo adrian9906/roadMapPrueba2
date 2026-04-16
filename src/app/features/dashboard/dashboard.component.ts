@@ -17,7 +17,7 @@ import { KanbanComponent } from '../kanban/kanban.component';
   template: `
     <div class="flex min-h-screen w-full animate-fade-in animate-delay-300 bg-zinc-50 text-zinc-900 transition-colors duration-300 dark:bg-elegant-bg dark:text-elegant-text font-sans">
       <div class="w-full flex flex-row">
-        <div class="flex flex-1 flex-col h-full">
+        <div class="flex flex-1 flex-col h-screen overflow-y-auto">
           <header class="fixed top-0 w-full z-50 bg-zinc-50 border-b border-zinc-200 text-zinc-900 dark:bg-gray-950 dark:border-gray-600 backdrop-blur-xl flex justify-between items-center px-4 sm:px-6 lg:px-8 h-16 w-full no-border tonal-layering">
             <div class="flex items-end justify-start gap-4 sm:gap-8">
               <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 text-white dark:bg-elegant-accent">
@@ -37,7 +37,7 @@ import { KanbanComponent } from '../kanban/kanban.component';
                 <p-toggleswitch
                   [(ngModel)]="isDarkMode"
                   (onChange)="toggleTheme()"
-                  styleClass="theme-toggle-custom"
+                  class="theme-toggle-custom"
                 >
                   <ng-template pTemplate="handle" let-checked="checked">
                     <span class="flex items-center justify-center w-full h-full">
@@ -53,39 +53,40 @@ import { KanbanComponent } from '../kanban/kanban.component';
             </div>
           </header>
 
-          <main class="flex-1 overflow-y-auto  pt-20 pb-8"> 
+          <main class="flex-1 pt-20 pb-8"> 
             <section
-              class="relative w-full h-[500px] sm:h-[500px] overflow-hidden flex items-center justify-center bg-cover bg-center"
+              class="relative w-full h-[500px] sm:h-[500px] overflow-hidden flex items-center justify-center bg-cover bg-center timeline-view animate-zoom-out animate-range-exit rounded-2xl"
               [style.background-image]="'url(' + backgroundImage + ')'"
             >
              
               <div class="absolute inset-0 bg-primary/10 blur-[120px] rounded-full z-0"></div>
               <div class="absolute inset-0 bg-black/30 z-0"></div> 
 
-              <div class="container mx-auto px-4 sm:px-8 relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-8 sm:gap-16 text-white">
+              <div class="container mx-auto px-4 sm:px-8 relative z-10 grid grid-cols-1 md:grid-cols-2 items-center gap-6 sm:gap-8 text-white">
                 <div>
-                  <h1 class="font-headline text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter mb-4 sm:mb-6 leading-tight sm:leading-none">
+                  <h1 class="font-headline text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter mb-3 sm:mb-4 leading-tight">
                     {{ t('hero.title_part1') }} <span class="text-primary italic">{{ t('hero.title_part2') }}</span> <br/>{{ t('hero.title_part3') }}
                   </h1>
-                  <p class="text-base sm:text-xl max-w-lg font-light leading-relaxed mb-6 sm:mb-10">
+                  <p class="text-sm sm:text-base max-w-lg font-light leading-relaxed mb-4 sm:mb-6">
                     {{ t('hero.subtitle') }}
                   </p>
-                  <div class="flex gap-4">
-                    <div class="bg-surface-container-highest/50 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center gap-3 sm:gap-4 border border-white/5">
+                  <div class="flex gap-3">
+                    <div class="bg-surface-container-highest/50 backdrop-blur-md px-3 py-2 sm:px-4 sm:py-3 rounded-lg flex items-center gap-2 sm:gap-3 border border-white/5">
                       <!-- Aquí podrías añadir más información si la tuvieras -->
                     </div>
                   </div>
                 </div>
-                <div class="flex justify-center items-center mt-8 md:mt-0"> <!-- Margen superior para móvil -->
+                
+                <div class="flex justify-center items-center mt-6 md:mt-0">
                   <!-- Progress Visualization -->
-                  <div class="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center">
-                    <svg class="w-full h-full transform -rotate-90">
+                  <div class="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 320 320">
                       <circle class="text-gray-700" cx="160" cy="160" fill="transparent" r="140" stroke="currentColor" stroke-width="8"></circle>
                       <circle class="text-primary drop-shadow-[0_0_12px_rgba(0,218,243,0.6)]" cx="160" cy="160" fill="transparent" r="140" stroke="currentColor" stroke-dasharray="880" stroke-dashoffset="280" stroke-width="8"></circle>
                     </svg>
                     <div class="absolute flex flex-col items-center">
-                      <span class="text-5xl sm:text-6xl font-headline font-bold text-primary">{{ activeRoadmapsCount() }}</span>
-                      <span class="uppercase tracking-widest text-xs sm:text-sm text-white/80">{{ t('hero.roadmaps_active') }}</span>
+                      <span class="text-4xl sm:text-5xl font-headline font-bold text-primary">{{ activeRoadmapsCount() }}</span>
+                      <span class="uppercase tracking-widest text-[10px] sm:text-xs text-white/80">{{ t('hero.roadmaps_active') }}</span>
                     </div>
                   </div>
                 </div>
@@ -93,15 +94,15 @@ import { KanbanComponent } from '../kanban/kanban.component';
             </section>
 
             <div class="mx-auto h-full w-full max-w-7xl flex flex-col pt-8">
-              <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-0">
-                <div>
-                  <h2 class="mb-1 sm:mb-2 font-sans text-2xl sm:text-[28px] font-bold tracking-tight text-on-surface">{{t('app.your_tasks')}}</h2>
+              <div class="mb-6 flex flex-row sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-0">
+                <div class="py-2 px-3 sm:py-3 sm:px-4">
+                  <h2 class="font-sans text-2xl sm:text-[28px] font-bold tracking-tight text-on-surface">{{t('app.your_tasks')}}</h2>
                   <p class="font-sans text-sm text-on-surface">{{t('app.manage_tasks')}}</p>
                 </div>
 
                 <button
                   (click)="openAddModal()"
-                  class="w-full sm:w-auto rounded-lg bg-indigo-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg"
+                  class="max-w-20 p-4 md:max-w-xs text-[10px] mr-3 sm:mr-0 rounded-lg bg-indigo-600 px-4 py-2 md:text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg whitespace-nowrap"
                 >
                   + {{ t('action.add_task') }}
                 </button>
@@ -130,18 +131,16 @@ import { KanbanComponent } from '../kanban/kanban.component';
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
     }
 
-    /* Modo OSCURO (toggle checked) */
     :host ::ng-deep .theme-toggle-custom.p-toggleswitch-checked .p-toggleswitch-slider {
       background: #e2e8f0 !important; /* Gris claro - Puedes cambiar este color */
     }
-
-    /* Estilos para el mesh-gradient con la imagen de fondo */
-    .mesh-gradient-section { /* Esta clase ya no es necesaria con los cambios directos */
+    .mesh-gradient-section { 
       position: relative;
       overflow: hidden;
       background-size: cover;
       background-position: center;
     }
+   
   `]
 })
 export class DashboardComponent {
