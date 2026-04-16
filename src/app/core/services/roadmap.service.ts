@@ -8,9 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class RoadmapService {
     private tasks = signal<Task[]>([]);
-    private platformId = inject(PLATFORM_ID); // Inyectar PLATFORM_ID
+    private platformId = inject(PLATFORM_ID);
 
-    // Signals para las tareas por estado
+
     toLearnTasks = computed(() => this.tasks().filter(task => task.status === 'TO_LEARN'));
     inProgressTasks = computed(() => this.tasks().filter(task => task.status === 'IN_PROGRESS'));
     masteredTasks = computed(() => this.tasks().filter(task => task.status === 'MASTERED'));
@@ -20,13 +20,12 @@ export class RoadmapService {
     }
 
     private loadTasks() {
-        // Verificar si estamos en el navegador antes de acceder a localStorage
         if (isPlatformBrowser(this.platformId)) {
             const storedTasks = localStorage.getItem('roadmapTasks');
             if (storedTasks) {
                 this.tasks.set(JSON.parse(storedTasks));
             } else {
-                // Datos de ejemplo con categorías
+
                 this.tasks.set([
                     { id: uuidv4(), title: 'Learn Angular Signals', description: 'Understand how signals work in Angular 16+ for reactive programming.', status: 'IN_PROGRESS', category: 'Frontend', tags: ['Angular', 'Signals', 'RxJS'], createdAt: new Date(), updatedAt: new Date() },
                     { id: uuidv4(), title: 'Build a REST API with Node.js', description: 'Develop a simple RESTful API using Express and MongoDB.', status: 'TO_LEARN', category: 'Backend', tags: ['Node.js', 'Express', 'MongoDB'], createdAt: new Date(), updatedAt: new Date() },
@@ -38,11 +37,7 @@ export class RoadmapService {
                 ]);
             }
         } else {
-            // Si estamos en el servidor, podemos inicializar con datos vacíos o de ejemplo predeterminados.
-            // O si tus datos vinieran de una API, los cargarías aquí de forma síncrona/asíncrona.
             this.tasks.set([
-                // Puedes poner aquí los mismos datos de ejemplo que arriba
-                // para que el SSR renderice algo inicial en el HTML.
                 { id: uuidv4(), title: 'Learn Angular Signals (SSR)', description: 'Understand how signals work in Angular 16+ for reactive programming.', status: 'IN_PROGRESS', category: 'Frontend', tags: ['Angular', 'Signals', 'RxJS'], createdAt: new Date(), updatedAt: new Date() },
                 { id: uuidv4(), title: 'Build a REST API with Node.js (SSR)', description: 'Develop a simple RESTful API using Express and MongoDB.', status: 'TO_LEARN', category: 'Backend', tags: ['Node.js', 'Express', 'MongoDB'], createdAt: new Date(), updatedAt: new Date() },
             ]);
@@ -87,6 +82,9 @@ export class RoadmapService {
                 task.id === id ? { ...task, status: newStatus, updatedAt: new Date() } : task
             )
         );
+        if (newStatus === 'MASTERED') {
+            alert('¡Felicidades! Has dominado esta tarea.');
+        }
         this.saveTasks();
     }
 }

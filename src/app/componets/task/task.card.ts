@@ -1,15 +1,18 @@
-import { Component, input, output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output, inject, AfterViewInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Task, TaskStatus } from '../../core/models/task.model';
 import { I18nService } from '../../core/services/i18n.service';
 import { LucideChevronLeft, LucideChevronRight, LucidePencil, LucideTrash } from '@lucide/angular';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 @Component({
-    selector: 'app-task-card',
-    standalone: true,
-    imports: [CommonModule, LucidePencil, LucideTrash, LucideChevronLeft, LucideChevronRight, DragDropModule],
-    template: `
-    <div [class]="'group relative flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-elegant-border dark:bg-elegant-card ' + getStatusBorderClass(task().status)">
+  selector: 'app-task-card',
+  standalone: true,
+  imports: [CommonModule, LucidePencil, LucideTrash, LucideChevronLeft, LucideChevronRight, DragDropModule],
+  template: `
+    <div [attr.data-task-id]="task().id"
+  data-task-card
+  [class]="'group relative flex flex-col gap-3 rounded-xl hover:-translate-y-1 duration-200 border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-elegant-border dark:bg-elegant-card ' + getStatusBorderClass(task().status)">
       <div class="flex items-start justify-between gap-4">
         <div class="flex flex-col gap-1">
           <span class="font-mono text-[10px] uppercase text-indigo-600 dark:text-elegant-accent">
@@ -54,33 +57,79 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     </div>
   `
 })
-export class TaskCardComponent {
-    task = input.required<Task>();
-    edit = output<Task>();
-    delete = output<string>();
-    move = output<{ id: string, status: TaskStatus }>();
-
-    private i18n = inject(I18nService);
-
-    t(key: string): string {
-        return this.i18n.translate(key);
+export class TaskCardComponent implements AfterViewInit, OnDestroy {
+  task = input.required<Task>();
+  edit = output<Task>();
+  delete = output<string>();
+  move = output<{ id: string, status: TaskStatus }>();
+  private observer: IntersectionObserver | null = null;
+  private cardsAnimated = new Set<string>();
+  private platformId = inject(PLATFORM_ID);
+  private i18n = inject(I18nService);
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.setupCardsAnimation();
     }
+  }
 
-    getStatusBorderClass(status: TaskStatus): string {
-        switch (status) {
-            case 'TO_LEARN': return 'border-l-[3px] border-l-indigo-500 dark:border-l-elegant-accent';
-            case 'IN_PROGRESS': return 'border-l-[3px] border-l-amber-500 dark:border-l-elegant-warning';
-            case 'MASTERED': return 'border-l-[3px] border-l-emerald-500 dark:border-l-elegant-success';
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  private setupCardsAnimation() {
+    if (typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+    const options = {
+      root: null,
+      rootMargin: '50px',
+      threshold: 0.1
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const card = entry.target as HTMLElement;
+        const taskId = card.dataset['taskId'];
+
+        if (entry.isIntersecting && taskId && !this.cardsAnimated.has(taskId)) {
+          this.cardsAnimated.add(taskId);
+          card.style.animation = 'none';
+          card.offsetHeight;
+          card.style.animation = '';
+          card.classList.add('animate-fade-in-up');
+          card.classList.add('animate-delay-500');
         }
-    }
+      });
+    }, options);
 
-    getPrevStatus(status: TaskStatus): TaskStatus {
-        if (status === 'MASTERED') return 'IN_PROGRESS';
-        return 'TO_LEARN';
-    }
+    // Observar todas las cards
+    setTimeout(() => {
+      document.querySelectorAll('[data-task-card]').forEach(card => {
+        this.observer?.observe(card);
+      });
+    }, 100);
+  }
+  t(key: string): string {
+    return this.i18n.translate(key);
+  }
 
-    getNextStatus(status: TaskStatus): TaskStatus {
-        if (status === 'TO_LEARN') return 'IN_PROGRESS';
-        return 'MASTERED';
+  getStatusBorderClass(status: TaskStatus): string {
+    switch (status) {
+      case 'TO_LEARN': return 'border-l-[3px] border-l-indigo-500 dark:border-l-elegant-accent';
+      case 'IN_PROGRESS': return 'border-l-[3px] border-l-amber-500 dark:border-l-elegant-warning';
+      case 'MASTERED': return 'border-l-[3px] border-l-emerald-500 dark:border-l-elegant-success';
     }
+  }
+
+  getPrevStatus(status: TaskStatus): TaskStatus {
+    if (status === 'MASTERED') return 'IN_PROGRESS';
+    return 'TO_LEARN';
+  }
+
+  getNextStatus(status: TaskStatus): TaskStatus {
+    if (status === 'TO_LEARN') return 'IN_PROGRESS';
+    return 'MASTERED';
+  }
 }

@@ -1,5 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideMap, LucideSun, LucideMoon } from '@lucide/angular';
 import { I18nService } from '../../core/services/i18n.service';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,7 @@ import { RoadmapService } from '../../core/services/roadmap.service';
 import { Task } from '../../core/models/task.model';
 import { TaskFormComponent } from "../../componets/task/task.form";
 import { KanbanComponent } from '../kanban/kanban.component';
-
+import { animate } from 'motion';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -72,13 +72,11 @@ import { KanbanComponent } from '../kanban/kanban.component';
                   </p>
                   <div class="flex gap-3">
                     <div class="bg-surface-container-highest/50 backdrop-blur-md px-3 py-2 sm:px-4 sm:py-3 rounded-lg flex items-center gap-2 sm:gap-3 border border-white/5">
-                      <!-- Aquí podrías añadir más información si la tuvieras -->
                     </div>
                   </div>
                 </div>
                 
                 <div class="flex justify-center items-center mt-6 md:mt-0">
-                  <!-- Progress Visualization -->
                   <div class="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 flex items-center justify-center">
                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 320 320">
                       <circle class="text-gray-700" cx="160" cy="160" fill="transparent" r="140" stroke="currentColor" stroke-width="8"></circle>
@@ -143,12 +141,12 @@ import { KanbanComponent } from '../kanban/kanban.component';
    
   `]
 })
-export class DashboardComponent {
+export class DashboardComponent implements AfterViewInit {
   i18n = inject(I18nService);
   theme = inject(ThemeService);
   isDarkMode = computed(() => this.theme.theme() === 'dark');
   private roadmap = inject(RoadmapService);
-
+  private platformId = inject(PLATFORM_ID);
   isModalOpen = signal(false);
   editingTask = signal<Task | null>(null);
 
@@ -159,7 +157,12 @@ export class DashboardComponent {
     if (this.roadmap.masteredTasks().length > 0) count++;
     return count;
   });
-
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Pequeño delay para asegurar que todo está renderizado
+      setTimeout(() => this.animateCount(), 100);
+    }
+  }
   backgroundImage: string = 'https://images.unsplash.com/photo-1510519138101-570d1dca3d66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2047&q=80';
 
   t(key: string): string {
