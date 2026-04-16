@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideMap, LucideSun } from '@lucide/angular'
+import { LucideMap, LucideSun, LucideMoon } from '@lucide/angular'
 import { I18nService } from '../../core/services/i18n.service';
+import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../core/services/theme.service';
-
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { RoadmapService } from '../../core/services/roadmap.service';
 import { Task } from '../../core/models/task.model';
 import { TaskFormComponent } from "../../componets/task/task.form";
@@ -12,11 +13,11 @@ import { KanbanComponent } from '../kanban/kanban.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LucideMap, LucideSun, KanbanComponent, TaskFormComponent],
+  imports: [CommonModule, LucideMap, LucideSun, FormsModule, ToggleSwitchModule, KanbanComponent, TaskFormComponent, LucideMoon],
   template: `
-    <div class="flex h-screen w-full overflow-hidden animate-fade-in animate-delay-300 bg-zinc-50 text-zinc-900 transition-colors duration-300 dark:bg-elegant-bg dark:text-elegant-text font-sans">
+    <div class="flex min-h-screen w-full animate-fade-in animate-delay-300 bg-zinc-50 text-zinc-900 transition-colors duration-300 dark:bg-elegant-bg dark:text-elegant-text font-sans">
       <div  class="w-full flex flex-row">
-      <div class="flex flex-1 flex-col h-full overflow-hidden">
+      <div class="flex flex-1 flex-col h-full">
         <div class="mb-10 flex items-center gap-2.5 text-[18px] font-extrabold tracking-tight text-indigo-600 dark:text-elegant-accent">
               
         <header class="fixed top-0 w-full z-50 bg-zinc-50 border-b border-zinc-200 text-zinc-900 dark:bg-gray-950 dark:border-gray-600 backdrop-blur-xl flex justify-between items-center px-8 h-16 w-full no-border tonal-layering">
@@ -34,23 +35,31 @@ import { KanbanComponent } from '../kanban/kanban.component';
               >
               {{ i18n.currentLang() === 'en' ? 'EN | PT' : 'PT | EN' }}
             </button>
-            <button 
-               (click)="toggleTheme()" 
-              class="flex items-center justify-center rounded-lg p-1 text-zinc-600 hover:bg-zinc-100 dark:text-elegant-text-muted dark:hover:bg-elegant-card transition-colors"
-              [title]="theme.theme() === 'dark' ? t('theme.light') : t('theme.dark')"
-              >
-              <svg lucideSun class="!h-[20px] !w-[20px] !text-[20px] text-black dark:text-white">{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</svg>
-            </button>
+             <div class="theme-control">
+      <p-toggleswitch  
+        [(ngModel)]="isDarkMode" 
+        (onChange)="toggleTheme()"
+          styleClass="theme-toggle-custom"
+      >
+        <ng-template class="bg-black" pTemplate="handle" let-checked="checked">
+          <span class="flex items-center justify-center w-full h-full">
+            @if (checked) {
+              <svg lucideMoon class="w-4 h-4 text-yellow-400"></svg>
+            } @else {
+              <svg lucideSun class="w-4 h-4 text-slate-600"></svg>
+            }
+          </span>
+        </ng-template>
+      </p-toggleswitch >
+    </div>
           </div>
         </header>
-
-        <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-8 mt-20">
           <div class="mx-auto h-full w-full max-w-7xl flex flex-col">
             <div class="mb-6 flex items-end justify-between">
               <div>
-                <h2 class="mb-2 font-sans text-[28px] font-bold tracking-tight text-zinc-900 dark:text-elegant-text">Frontend Mastery</h2>
-                <p class="font-sans text-sm text-zinc-500 dark:text-elegant-text-muted">Projected completion: Dec 2024 &bull; 12 modules remaining</p>
+                <h2 class="mb-2 font-sans text-[28px] font-bold tracking-tight text-on-surface">{{t('app.title')}}</h2>
+                <p class="font-sans text-sm text-on-surface">{{t('app.subtitle')}}</p>
               </div>
               
               <button 
@@ -73,11 +82,28 @@ import { KanbanComponent } from '../kanban/kanban.component';
         />
       }
     </div>
-  `
+  `,
+  styles: [`
+  .theme-control {
+      display: flex;
+      align-items: center;
+    }
+   :host ::ng-deep .theme-toggle-custom .p-toggleswitch-slider {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+      
+    }
+
+    /* Modo OSCURO (toggle checked) */
+    :host ::ng-deep .theme-toggle-custom.p-toggleswitch-checked .p-toggleswitch-slider {
+    background: #e2e8f0 !important; /* Gris claro - Puedes cambiar este color */
+      
+    }
+    `]
 })
 export class DashboardComponent {
   i18n = inject(I18nService);
   theme = inject(ThemeService);
+  isDarkMode = computed(() => this.theme.theme() === 'dark');
   private roadmap = inject(RoadmapService);
   isModalOpen = signal(false);
   editingTask = signal<Task | null>(null);
@@ -86,6 +112,7 @@ export class DashboardComponent {
   }
   toggleTheme() {
     this.theme.toggleTheme();
+
   }
 
   toggleLang() {

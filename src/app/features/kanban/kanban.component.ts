@@ -1,4 +1,3 @@
-// src/app/modules/kanban/kanban.component.ts
 import { Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { I18nService } from '../../core/services/i18n.service';
@@ -193,7 +192,6 @@ export class KanbanComponent {
       }
 
       this.roadmap.updateTaskStatus(movedTask.id, newStatus);
-
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
