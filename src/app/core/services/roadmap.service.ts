@@ -1,103 +1,92 @@
-import { Injectable, signal, computed, effect, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Task, TaskStatus } from '../models/task.model';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core'; // Importar PLATFORM_ID
+import { isPlatformBrowser } from '@angular/common'; // Importar isPlatformBrowser
+import { Task, TaskStatus, TaskCategory } from '../models/task.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RoadmapService {
-    private readonly STORAGE_KEY = 'devroadmap_tasks';
-    private platformId = inject(PLATFORM_ID);
+    private tasks = signal<Task[]>([]);
+    private platformId = inject(PLATFORM_ID); // Inyectar PLATFORM_ID
 
-    private _tasks = signal<Task[]>([]);
-
-    public tasks = this._tasks.asReadonly();
-
-    public toLearnTasks = computed(() => this._tasks().filter(t => t.status === 'TO_LEARN').sort((a, b) => b.updatedAt - a.updatedAt));
-    public inProgressTasks = computed(() => this._tasks().filter(t => t.status === 'IN_PROGRESS').sort((a, b) => b.updatedAt - a.updatedAt));
-    public masteredTasks = computed(() => this._tasks().filter(t => t.status === 'MASTERED').sort((a, b) => b.updatedAt - a.updatedAt));
+    // Signals para las tareas por estado
+    toLearnTasks = computed(() => this.tasks().filter(task => task.status === 'TO_LEARN'));
+    inProgressTasks = computed(() => this.tasks().filter(task => task.status === 'IN_PROGRESS'));
+    masteredTasks = computed(() => this.tasks().filter(task => task.status === 'MASTERED'));
 
     constructor() {
-        this.loadInitialData();
-        effect(() => {
-            const currentTasks = this._tasks();
-            if (isPlatformBrowser(this.platformId)) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(currentTasks));
-            }
-        });
+        this.loadTasks();
     }
 
-    private loadInitialData() {
+    private loadTasks() {
+        // Verificar si estamos en el navegador antes de acceder a localStorage
         if (isPlatformBrowser(this.platformId)) {
-            const stored = localStorage.getItem(this.STORAGE_KEY);
-            if (stored) {
-                try {
-                    this._tasks.set(JSON.parse(stored));
-                    return;
-                } catch (e) {
-                    console.error('Failed to parse stored tasks', e);
-                }
+            const storedTasks = localStorage.getItem('roadmapTasks');
+            if (storedTasks) {
+                this.tasks.set(JSON.parse(storedTasks));
+            } else {
+                // Datos de ejemplo con categorías
+                this.tasks.set([
+                    { id: uuidv4(), title: 'Learn Angular Signals', description: 'Understand how signals work in Angular 16+ for reactive programming.', status: 'IN_PROGRESS', category: 'Frontend', tags: ['Angular', 'Signals', 'RxJS'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Build a REST API with Node.js', description: 'Develop a simple RESTful API using Express and MongoDB.', status: 'TO_LEARN', category: 'Backend', tags: ['Node.js', 'Express', 'MongoDB'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Setup CI/CD Pipeline', description: 'Implement a CI/CD pipeline for automated testing and deployment.', status: 'MASTERED', category: 'DevOps', tags: ['GitLab CI', 'Docker'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Design Database Schema', description: 'Create an optimized schema for a new e-commerce application.', status: 'TO_LEARN', category: 'Database', tags: ['SQL', 'PostgreSQL'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Implement Responsive Design', description: 'Ensure the application is fully responsive on all devices.', status: 'IN_PROGRESS', category: 'Frontend', tags: ['CSS', 'TailwindCSS', 'Responsive'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Deploy to AWS S3', description: 'Host the static frontend application on AWS S3.', status: 'TO_LEARN', category: 'DevOps', tags: ['AWS', 'S3'], createdAt: new Date(), updatedAt: new Date() },
+                    { id: uuidv4(), title: 'Unit Testing with Jest', description: 'Write unit tests for backend services using Jest.', status: 'IN_PROGRESS', category: 'Testing', tags: ['Node.js', 'Jest', 'TDD'], createdAt: new Date(), updatedAt: new Date() },
+                ]);
             }
+        } else {
+            // Si estamos en el servidor, podemos inicializar con datos vacíos o de ejemplo predeterminados.
+            // O si tus datos vinieran de una API, los cargarías aquí de forma síncrona/asíncrona.
+            this.tasks.set([
+                // Puedes poner aquí los mismos datos de ejemplo que arriba
+                // para que el SSR renderice algo inicial en el HTML.
+                { id: uuidv4(), title: 'Learn Angular Signals (SSR)', description: 'Understand how signals work in Angular 16+ for reactive programming.', status: 'IN_PROGRESS', category: 'Frontend', tags: ['Angular', 'Signals', 'RxJS'], createdAt: new Date(), updatedAt: new Date() },
+                { id: uuidv4(), title: 'Build a REST API with Node.js (SSR)', description: 'Develop a simple RESTful API using Express and MongoDB.', status: 'TO_LEARN', category: 'Backend', tags: ['Node.js', 'Express', 'MongoDB'], createdAt: new Date(), updatedAt: new Date() },
+            ]);
         }
-
-        this._tasks.set([
-            {
-                id: this.generateId(),
-                title: 'Learn Angular Signals',
-                description: 'Understand how to use signals for state management in Angular 18+.',
-                status: 'MASTERED',
-                tags: ['Angular', 'State Management'],
-                createdAt: Date.now() - 100000,
-                updatedAt: Date.now() - 100000,
-            },
-            {
-                id: this.generateId(),
-                title: 'Master Tailwind CSS v4',
-                description: 'Explore the new features and configuration in Tailwind CSS v4.',
-                status: 'IN_PROGRESS',
-                tags: ['CSS', 'Tailwind'],
-                createdAt: Date.now() - 50000,
-                updatedAt: Date.now() - 50000,
-            },
-            {
-                id: this.generateId(),
-                title: 'Explore RxJS Interoperability',
-                description: 'Learn how to mix RxJS observables with Angular Signals effectively.',
-                status: 'TO_LEARN',
-                tags: ['RxJS', 'Angular'],
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-            }
-        ]);
     }
 
-    public addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) {
+    private saveTasks() {
+        // Solo guardar en localStorage si estamos en el navegador
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('roadmapTasks', JSON.stringify(this.tasks()));
+        }
+    }
+
+    addTask(newTaskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) {
         const newTask: Task = {
-            ...task,
-            id: this.generateId(),
-            createdAt: Date.now(),
-            updatedAt: Date.now()
+            ...newTaskData,
+            id: uuidv4(),
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
-        this._tasks.update(tasks => [...tasks, newTask]);
+        this.tasks.update(tasks => [...tasks, newTask]);
+        this.saveTasks();
     }
 
-    public updateTask(id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>) {
-        this._tasks.update(tasks => tasks.map(task =>
-            task.id === id
-                ? { ...task, ...updates, updatedAt: Date.now() }
-                : task
-        ));
+    updateTask(id: string, updatedTaskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) {
+        this.tasks.update(tasks =>
+            tasks.map(task =>
+                task.id === id ? { ...task, ...updatedTaskData, updatedAt: new Date() } : task
+            )
+        );
+        this.saveTasks();
     }
 
-    public updateTaskStatus(id: string, status: TaskStatus) {
-        this.updateTask(id, { status });
+    deleteTask(id: string) {
+        this.tasks.update(tasks => tasks.filter(task => task.id !== id));
+        this.saveTasks();
     }
 
-    public deleteTask(id: string) {
-        this._tasks.update(tasks => tasks.filter(task => task.id !== id));
-    }
-
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 9);
+    updateTaskStatus(id: string, newStatus: TaskStatus) {
+        this.tasks.update(tasks =>
+            tasks.map(task =>
+                task.id === id ? { ...task, status: newStatus, updatedAt: new Date() } : task
+            )
+        );
+        this.saveTasks();
     }
 }

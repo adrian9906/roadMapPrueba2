@@ -2,14 +2,14 @@ import { Component, input, output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideCircleX } from '@lucide/angular';
-import { Task } from '../../core/models/task.model';
+import { Task, TaskCategory, TaskStatus } from '../../core/models/task.model'; // Importar TaskCategory
 import { I18nService } from '../../core/services/i18n.service';
 
 @Component({
-    selector: 'app-task-form',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, LucideCircleX],
-    template: `
+  selector: 'app-task-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, LucideCircleX],
+  template: `
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 backdrop-blur-sm p-4 sm:p-0">
       <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-zinc-200 dark:bg-elegant-card dark:ring-elegant-border transition-all transform scale-100 opacity-100">
         <div class="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-elegant-border">
@@ -27,12 +27,12 @@ import { I18nService } from '../../core/services/i18n.service';
               <label for="task-title" class="mb-1.5 block font-sans text-sm font-medium text-zinc-700 dark:text-elegant-text-muted">
                 {{ t('form.field.title') }}
               </label>
-              <input 
+              <input
                 id="task-title"
-                type="text" 
+                type="text"
                 formControlName="title"
                 class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-sans text-sm text-zinc-900 placeholder-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-elegant-border dark:bg-elegant-bg dark:text-elegant-text dark:placeholder-zinc-600 dark:focus:border-elegant-accent dark:focus:ring-elegant-accent"
-                [placeholder]="t('form.field.title')"
+                [placeholder]="t('form.field.title_placeholder')"
               />
             </div>
 
@@ -40,12 +40,12 @@ import { I18nService } from '../../core/services/i18n.service';
               <label for="task-description" class="mb-1.5 block font-sans text-sm font-medium text-zinc-700 dark:text-elegant-text-muted">
                 {{ t('form.field.description') }}
               </label>
-              <textarea 
+              <textarea
                 id="task-description"
                 formControlName="description"
                 rows="3"
                 class="w-full resize-none rounded-lg border border-zinc-200 bg-white px-3 py-2 font-sans text-sm text-zinc-900 placeholder-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-elegant-border dark:bg-elegant-bg dark:text-elegant-text dark:placeholder-zinc-600 dark:focus:border-elegant-accent dark:focus:ring-elegant-accent"
-                [placeholder]="t('form.field.description')"
+                [placeholder]="t('form.field.description_placeholder')"
               ></textarea>
             </div>
 
@@ -53,7 +53,7 @@ import { I18nService } from '../../core/services/i18n.service';
               <label for="task-status" class="mb-1.5 block font-sans text-sm font-medium text-zinc-700 dark:text-elegant-text-muted">
                 {{ t('form.field.status') }}
               </label>
-              <select 
+              <select
                 id="task-status"
                 formControlName="status"
                 class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-sans text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-elegant-border dark:bg-elegant-bg dark:text-elegant-text dark:focus:border-elegant-accent dark:focus:ring-elegant-accent"
@@ -64,30 +64,46 @@ import { I18nService } from '../../core/services/i18n.service';
               </select>
             </div>
 
+            <!-- NUEVO: Campo de Categoría -->
+            <div>
+              <label for="task-category" class="mb-1.5 block font-sans text-sm font-medium text-zinc-700 dark:text-elegant-text-muted">
+                {{ t('form.field.category') }}
+              </label>
+              <select
+                id="task-category"
+                formControlName="category"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-sans text-sm text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-elegant-border dark:bg-elegant-bg dark:text-elegant-text dark:focus:border-elegant-accent dark:focus:ring-elegant-accent"
+              >
+                @for (category of categories; track category) {
+                  <option [value]="category">{{ t('category.' + category.toUpperCase()) }}</option>
+                }
+              </select>
+            </div>
+
             <div>
               <label for="task-tags" class="mb-1.5 block font-sans text-sm font-medium text-zinc-700 dark:text-elegant-text-muted">
                 {{ t('form.field.tags') }}
               </label>
-              <input 
+              <input
                 id="task-tags"
-                type="text" 
+                type="text"
                 formControlName="tags"
                 class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-sans text-sm text-zinc-900 placeholder-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-elegant-border dark:bg-elegant-bg dark:text-elegant-text dark:placeholder-zinc-600 dark:focus:border-elegant-accent dark:focus:ring-elegant-accent"
-                placeholder="Angular, CSS, RxJS"
+                [placeholder]="t('form.field.tags_placeholder')"
               />
             </div>
           </div>
 
           <div class="mt-8 flex items-center justify-end gap-3">
-            <button 
-              type="button" 
+            <button
+              type="button"
               (click)="closeForm.emit()"
               class="rounded-lg px-4 py-2 font-sans text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-elegant-text-muted dark:hover:bg-elegant-border transition-colors"
             >
               {{ t('action.cancel') }}
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               [disabled]="form.invalid"
               class="rounded-lg bg-indigo-600 px-4 py-2 font-sans text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg transition-colors"
             >
@@ -100,45 +116,51 @@ import { I18nService } from '../../core/services/i18n.service';
   `
 })
 export class TaskFormComponent implements OnInit {
-    task = input<Task | null>(null);
-    save = output<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>();
-    closeForm = output<void>();
+  task = input<Task | null>(null);
+  save = output<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>();
+  closeForm = output<void>();
 
-    private fb = inject(FormBuilder);
-    private i18n = inject(I18nService);
+  private fb = inject(FormBuilder);
+  private i18n = inject(I18nService);
 
-    form: FormGroup = this.fb.group({
-        title: ['', Validators.required],
-        description: [''],
-        status: ['TO_LEARN', Validators.required],
-        tags: ['']
-    });
+  // Lista de categorías para el selector
+  categories: TaskCategory[] = ['Backend', 'Frontend', 'DevOps', 'Mobile', 'Database', 'Testing', 'UI/UX', 'Other'];
 
-    ngOnInit() {
-        const t = this.task();
-        if (t) {
-            this.form.patchValue({
-                title: t.title,
-                description: t.description,
-                status: t.status,
-                tags: t.tags.join(', ')
-            });
-        }
+  form: FormGroup = this.fb.group({
+    title: ['', Validators.required],
+    description: [''],
+    status: ['TO_LEARN', Validators.required],
+    category: [this.categories[0], Validators.required], // ¡Nuevo campo! Default a la primera categoría
+    tags: ['']
+  });
+
+  ngOnInit() {
+    const t = this.task();
+    if (t) {
+      this.form.patchValue({
+        title: t.title,
+        description: t.description,
+        status: t.status,
+        category: t.category, // ¡Asignar valor a la categoría!
+        tags: t.tags.join(', ')
+      });
     }
+  }
 
-    t(key: string): string {
-        return this.i18n.translate(key);
-    }
+  t(key: string): string {
+    return this.i18n.translate(key);
+  }
 
-    onSubmit() {
-        if (this.form.valid) {
-            const value = this.form.value;
-            this.save.emit({
-                title: value.title,
-                description: value.description,
-                status: value.status,
-                tags: value.tags ? value.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag) : []
-            });
-        }
+  onSubmit() {
+    if (this.form.valid) {
+      const value = this.form.value;
+      this.save.emit({
+        title: value.title,
+        description: value.description,
+        status: value.status,
+        category: value.category, // ¡Incluir la categoría!
+        tags: value.tags ? value.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag) : []
+      });
     }
+  }
 }
