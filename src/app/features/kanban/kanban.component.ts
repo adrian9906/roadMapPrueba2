@@ -8,10 +8,10 @@ import { LucideLightbulb, LucideTrendingUp, LucideTrophy } from '@lucide/angular
 import { TaskCardComponent } from '../../componets/task/task.card';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
 @Component({
-    selector: 'app-kanban',
-    standalone: true,
-    imports: [CommonModule, LucideLightbulb, LucideTrendingUp, LucideTrophy, TaskCardComponent, LucideTrophy, DragDropModule],
-    template: `
+  selector: 'app-kanban',
+  standalone: true,
+  imports: [CommonModule, LucideLightbulb, LucideTrendingUp, LucideTrophy, TaskCardComponent, LucideTrophy, DragDropModule],
+  template: `
     <main class="pt-20 pb-20 md:pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="flex flex-col lg:grid lg:grid-cols-3 gap-6 lg:gap-8" cdkDropListGroup>
         
@@ -122,7 +122,7 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from 
       </div>
     </main>
   `,
-    styles: [`
+  styles: [`
     .custom-scrollbar::-webkit-scrollbar {
       width: 4px;
     }
@@ -153,36 +153,36 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from 
   `]
 })
 export class KanbanComponent {
-    roadmap = inject(RoadmapService);
-    private i18n = inject(I18nService);
+  roadmap = inject(RoadmapService);
+  private i18n = inject(I18nService);
 
-    editTask = output<Task>();
+  editTask = output<Task>();
 
-    t(key: string): string {
-        return this.i18n.translate(key);
-    }
+  t(key: string): string {
+    return this.i18n.translate(key);
+  }
 
-    onDelete(id: string) {
-        this.roadmap.deleteTask(id);
-    }
+  onDelete(id: string) {
+    this.roadmap.deleteTask(id);
+  }
 
-    onMove(event: { id: string, status: TaskStatus }) {
-        this.roadmap.updateTaskStatus(event.id, event.status);
+  onMove(event: { id: string, status: TaskStatus }) {
+    this.roadmap.updateTaskStatus(event.id, event.status);
+  }
+  dropped(event: CdkDragDrop<Task[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
     }
-    dropped(event: CdkDragDrop<Task[]>) {
-        if (event.previousContainer === event.container) {
-            moveItemInArray(
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
-        } else {
-            transferArrayItem(
-                event.previousContainer.data,
-                event.container.data,
-                event.previousIndex,
-                event.currentIndex
-            );
-        }
-    }
+  }
 }
