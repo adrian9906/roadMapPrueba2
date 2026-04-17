@@ -100,7 +100,7 @@ import { KanbanComponent } from '../kanban/kanban.component';
 
                 <button
                   (click)="openAddModal()"
-                  class="max-w-20 p-4 md:max-w-xs text-[10px] mr-3 sm:mr-0 rounded-lg bg-indigo-600 px-4 py-2 md:text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg whitespace-nowrap"
+                  class="max-w-30 p-4 md:max-w-xs text-[10px] mr-3 sm:mr-0 rounded-lg bg-indigo-600 px-4 py-2 md:text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-elegant-accent dark:hover:bg-blue-600 dark:focus:ring-offset-elegant-bg whitespace-nowrap"
                 >
                   + {{ t('action.add_task') }}
                 </button>
