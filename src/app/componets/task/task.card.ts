@@ -10,8 +10,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
   standalone: true,
   imports: [CommonModule, LucidePencil, LucideTrash, LucideChevronLeft, LucideChevronRight, DragDropModule],
   template: `
-    <div [attr.data-task-id]="task().id"
-  data-task-card
+    <div
   [class]="'group relative flex flex-col gap-3 rounded-xl hover:-translate-y-1 duration-200 border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-elegant-border dark:bg-elegant-card ' + getStatusBorderClass(task().status)">
       <div class="flex items-start justify-between gap-4">
         <div class="flex flex-col gap-1">
@@ -57,7 +56,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     </div>
   `
 })
-export class TaskCardComponent implements AfterViewInit, OnDestroy {
+export class TaskCardComponent {
   task = input.required<Task>();
   edit = output<Task>();
   delete = output<string>();
@@ -66,51 +65,6 @@ export class TaskCardComponent implements AfterViewInit, OnDestroy {
   private cardsAnimated = new Set<string>();
   private platformId = inject(PLATFORM_ID);
   private i18n = inject(I18nService);
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.setupCardsAnimation();
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  }
-
-  private setupCardsAnimation() {
-    if (typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-    const options = {
-      root: null,
-      rootMargin: '50px',
-      threshold: 0.1
-    };
-
-    this.observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const card = entry.target as HTMLElement;
-        const taskId = card.dataset['taskId'];
-
-        if (entry.isIntersecting && taskId && !this.cardsAnimated.has(taskId)) {
-          this.cardsAnimated.add(taskId);
-          card.style.animation = 'none';
-          card.offsetHeight;
-          card.style.animation = '';
-          card.classList.add('animate-fade-in-up');
-          card.classList.add('animate-delay-500');
-        }
-      });
-    }, options);
-
-    // Observar todas las cards
-    setTimeout(() => {
-      document.querySelectorAll('[data-task-card]').forEach(card => {
-        this.observer?.observe(card);
-      });
-    }, 100);
-  }
   t(key: string): string {
     return this.i18n.translate(key);
   }

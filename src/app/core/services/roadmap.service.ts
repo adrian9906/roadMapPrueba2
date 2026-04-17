@@ -82,9 +82,6 @@ export class RoadmapService {
                 task.id === id ? { ...task, status: newStatus, updatedAt: new Date() } : task
             )
         );
-        if (newStatus === 'MASTERED') {
-            alert('¡Felicidades! Has dominado esta tarea.');
-        }
         this.saveTasks();
     }
 }

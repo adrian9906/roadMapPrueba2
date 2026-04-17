@@ -229,7 +229,7 @@ import { FormsModule } from '@angular/forms';
 export class KanbanComponent {
   roadmap = inject(RoadmapService);
   private i18n = inject(I18nService);
-
+  taskMastered = output<string>();
   editTask = output<Task>();
   filterCategorySignal = signal<TaskCategory | ''>('');
   filterStatusSignal = signal<string>('');
@@ -269,9 +269,15 @@ export class KanbanComponent {
   }
 
   onMove(event: { id: string, status: TaskStatus }) {
+    if (event.status === 'MASTERED') {
+      const task = this.roadmap.toLearnTasks().find(t => t.id === event.id) ||
+        this.roadmap.inProgressTasks().find(t => t.id === event.id);
+      if (task) {
+        this.taskMastered.emit(task.title);
+      }
+    }
     this.roadmap.updateTaskStatus(event.id, event.status);
   }
-
   dropped(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
@@ -293,6 +299,9 @@ export class KanbanComponent {
       } else {
         console.warn('Estado de destino desconocido:', newStatusId);
         return;
+      }
+      if (newStatus === 'MASTERED') {
+        this.taskMastered.emit(movedTask.title);
       }
 
       this.roadmap.updateTaskStatus(movedTask.id, newStatus);

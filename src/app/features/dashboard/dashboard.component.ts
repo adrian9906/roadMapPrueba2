@@ -9,7 +9,7 @@ import { RoadmapService } from '../../core/services/roadmap.service';
 import { Task } from '../../core/models/task.model';
 import { TaskFormComponent } from "../../componets/task/task.form";
 import { KanbanComponent } from '../kanban/kanban.component';
-import { animate } from 'motion';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -141,12 +141,11 @@ import { animate } from 'motion';
    
   `]
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent {
   i18n = inject(I18nService);
   theme = inject(ThemeService);
   isDarkMode = computed(() => this.theme.theme() === 'dark');
   private roadmap = inject(RoadmapService);
-  private platformId = inject(PLATFORM_ID);
   isModalOpen = signal(false);
   editingTask = signal<Task | null>(null);
 
@@ -157,12 +156,6 @@ export class DashboardComponent implements AfterViewInit {
     if (this.roadmap.masteredTasks().length > 0) count++;
     return count;
   });
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // Pequeño delay para asegurar que todo está renderizado
-      setTimeout(() => this.animateCount(), 100);
-    }
-  }
   backgroundImage: string = 'https://images.unsplash.com/photo-1510519138101-570d1dca3d66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2047&q=80';
 
   t(key: string): string {
