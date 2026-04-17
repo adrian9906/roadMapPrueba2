@@ -21,7 +21,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
             {{ task().title }}
           </h3>
         </div>
-        <div class="flex opacity-0 transition-opacity group-hover:opacity-100">
+        <div class="flex md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
           <button (click)="edit.emit(task())" class="rounded p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-elegant-border dark:hover:text-elegant-text" [title]="t('action.edit')">
             <svg lucidePencil class="!h-[16px] !w-[16px] !text-[16px]"></svg>
           </button>
